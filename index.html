@@ -8,10 +8,26 @@
       font-family: Arial, sans-serif;
       background: #f4f4f4;
       padding: 20px;
+      margin: 0;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 30px;
     }
     h1 {
-      text-align: center;
       color: #333;
+    }
+    p {
+      color: #555;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    #searchBar {
+      display: block;
+      margin: 20px auto;
+      padding: 10px;
+      width: 300px;
+      font-size: 16px;
     }
     .module-list {
       display: flex;
@@ -26,30 +42,82 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       width: 250px;
       text-align: center;
+      transition: transform 0.2s;
+    }
+    .module:hover {
+      transform: scale(1.03);
     }
     .module a {
       text-decoration: none;
       color: #007acc;
       font-weight: bold;
     }
+    .completed {
+      background-color: #e0ffe0;
+    }
+    .mark-complete {
+      margin-top: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      color: #28a745;
+    }
   </style>
 </head>
 <body>
-  <h1>📚 My Learning Hub</h1>
-  <div class="module-list">
-    <div class="module">
+
+  <header>
+    <h1>📚 My Learning Hub</h1>
+    <p>Welcome! Explore interactive modules designed to deepen your understanding of Accountancy, Business, and Management. Use the search bar to find what you need, and track your progress as you go!</p>
+    <input type="text" id="searchBar" placeholder="🔍 Search modules..." onkeyup="filterModules()">
+  </header>
+
+  <div class="module-list" id="moduleList">
+    <div class="module" data-title="Fundamentals of Accountancy Business and Management 1" id="module-fabm1">
       <h3>Fundamentals of Accountancy Business and Management 1</h3>
       <a href="https://jlvcpa.github.io/fabm1-module/">Launch</a>
+      <div class="mark-complete" onclick="markComplete('module-fabm1')">✅ Mark as Complete</div>
     </div>
-    <div class="module">
+    <div class="module" data-title="Fundamentals of Accountancy Business and Management 2" id="module-fabm2">
       <h3>Fundamentals of Accountancy Business and Management 2</h3>
       <a href="https://jlvcpa.github.io/fabm2-module/">Launch</a>
+      <div class="mark-complete" onclick="markComplete('module-fabm2')">✅ Mark as Complete</div>
     </div>
-    <div class="module">
+    <div class="module" data-title="Formative Quizzes" id="module-quizzes">
       <h3>Formative Quizzes</h3>
       <a href="https://jlvcpa.github.io/formative-quizzes-app/">Launch</a>
+      <div class="mark-complete" onclick="markComplete('module-quizzes')">✅ Mark as Complete</div>
     </div>
     <!-- Add more modules as needed -->
   </div>
+
+  <script>
+    // Filter modules by search input
+    function filterModules() {
+      const input = document.getElementById('searchBar').value.toLowerCase();
+      const modules = document.querySelectorAll('.module');
+      modules.forEach(module => {
+        const title = module.getAttribute('data-title').toLowerCase();
+        module.style.display = title.includes(input) ? 'block' : 'none';
+      });
+    }
+
+    // Mark module as complete using localStorage
+    function markComplete(id) {
+      localStorage.setItem(id, 'complete');
+      document.getElementById(id).classList.add('completed');
+    }
+
+    // Load progress on page load
+    window.onload = function() {
+      const modules = document.querySelectorAll('.module');
+      modules.forEach(module => {
+        const id = module.id;
+        if (localStorage.getItem(id) === 'complete') {
+          module.classList.add('completed');
+        }
+      });
+    }
+  </script>
+
 </body>
 </html>
