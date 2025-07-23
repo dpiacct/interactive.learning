@@ -2127,6 +2127,23 @@ function resetAllPerformances() {
   }
 }
 
+  // Disable right-click
+  document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+  });
+
+  // Disable certain key combinations (like Print Screen, Ctrl+U, F12)
+  document.addEventListener('keydown', function (e) {
+    if (
+      e.key === 'F12' || // Dev tools
+      (e.ctrlKey && e.key === 'u') || // View source
+      (e.ctrlKey && e.key === 's') || // Save
+      (e.ctrlKey && e.key === 'p') // Print
+    ) {
+      e.preventDefault();
+    }
+  }); 
+
  // 📦 Run after everything is ready
   window.onload = () => {
     populateTopicDropdown();
