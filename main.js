@@ -12,8 +12,17 @@ import { initGenerator } from './generator/generatorEngine.js';
 // --- FIREBASE GLOBAL SETUP ---
 setLogLevel('Debug');
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+// Configuration directly provided by the user.
+const firebaseConfig = {
+    apiKey: "AIzaSyAgOsKAZWwExUzupxSNytsfOo9BOppF0ng",
+    authDomain: "jlvcpa-quizzes.firebaseapp.com",
+    projectId: "jlvcpa-quizzes",
+    storageBucket: "jlvcpa-quizzes.appspot.com",
+    messagingSenderId: "629158256557",
+    appId: "1:629158256557:web:b3d1a424b32e28cd578b24"
+};
 
 // Firestore path for the public teachers collection (Note: Insecure for production, but necessary for front-end only implementation)
 const TEACHERS_COLLECTION_PATH = (appId) => `/artifacts/${appId}/public/data/teachers_info`;
@@ -21,6 +30,7 @@ const TEACHERS_COLLECTION_PATH = (appId) => `/artifacts/${appId}/public/data/tea
 // Global Firebase instances and state
 let app, db, auth, userId = null;
 let currentTeacher = null; // Stores authenticated teacher details {idNumber, firstName, lastName}
+let isFirebaseInitialized = false; // NEW FLAG
 
 /**
  * Shows the login overlay and hides the main content.
@@ -48,6 +58,8 @@ function showDashboard() {
  */
 async function initializeFirebaseAndAuth() {
     try {
+        // Since firebaseConfig is now explicitly defined, we assume it's correct.
+        
         app = initializeApp(firebaseConfig);
         db = getFirestore(app);
         auth = getAuth(app);
@@ -56,6 +68,7 @@ async function initializeFirebaseAndAuth() {
         window.db = db;
         window.appId = appId;
         window.auth = auth; // Expose auth for sign out
+        isFirebaseInitialized = true; // Set flag upon successful initialization
 
         // Set persistence to session to maintain login state
         await setPersistence(auth, browserSessionPersistence);
@@ -100,8 +113,9 @@ async function initializeFirebaseAndAuth() {
         }
 
     } catch (error) {
+        // Check if initialization failed entirely
         console.error("Firebase Initialization or Auth Error:", error);
-        document.getElementById('user-info').innerText = `Auth Error: ${error.code}`;
+        document.getElementById('user-info').innerText = `Auth Error: ${error.message}`;
         showLoginScreen();
     }
 }
@@ -110,6 +124,14 @@ async function initializeFirebaseAndAuth() {
  * Handles sign-in initiated from the UI form.
  */
 window.teacherSignInFromUI = async function() {
+    // FIX 2: Guard clause to ensure Firestore is initialized before attempting queries
+    if (!isFirebaseInitialized || !db) {
+        console.error("Firestore DB not initialized yet. Please wait.");
+        document.getElementById('login-error').textContent = 'System initializing, please try again in a moment.';
+        document.getElementById('login-error').classList.remove('hidden');
+        return;
+    }
+
     const idInput = document.getElementById('login-id');
     const passInput = document.getElementById('login-password');
     const errorBox = document.getElementById('login-error');
