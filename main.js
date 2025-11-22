@@ -25,8 +25,8 @@ const firebaseConfig = {
 };
 
 // Firestore path for the public teachers collection
-// FIX: Changed 'teachers_info' to 'teachers' based on user feedback.
-const TEACHERS_COLLECTION_PATH = (appId) => `/artifacts/${appId}/public/data/teachers`;
+// FIX APPLIED: Changed path from Canvas-specific nested path to the root collection name 'teachers'.
+const TEACHERS_COLLECTION_PATH = () => 'teachers';
 const TEACHER_SESSION_KEY = 'learning_hub_teacher';
 
 // Global Firebase instances and state
@@ -161,7 +161,8 @@ window.teacherSignInFromUI = async function() {
     }
 
     try {
-        const teachersPath = TEACHERS_COLLECTION_PATH(appId);
+        // FIX: TEACHERS_COLLECTION_PATH() no longer takes appId, as it's a root collection.
+        const teachersPath = TEACHERS_COLLECTION_PATH(); 
         console.log(`Querying teacher data in collection: ${teachersPath}`);
 
         // 1. Query Firestore for the teacher document using idNumber
@@ -184,6 +185,7 @@ window.teacherSignInFromUI = async function() {
         });
 
         // 2. Validate Password
+        // Note: The password in your screenshot is "14344230321" (string)
         if (teacherData.passWord !== passWord) {
             errorBox.textContent = 'Login failed: Invalid password.';
             errorBox.classList.remove('hidden');
