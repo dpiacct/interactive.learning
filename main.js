@@ -108,8 +108,9 @@ async function initializeFirebaseAndAuth() {
         if (initialAuthToken) {
             await signInWithCustomToken(auth, initialAuthToken);
         } else {
-            // Sign in anonymously if no token, this will trigger onAuthStateChanged
-            await signInAnonymously(auth);
+            // FIX: Skip signInAnonymously to prevent (auth/configuration-not-found) error.
+            // onAuthStateChanged will detect no user and correctly trigger showLoginScreen().
+            console.log("No initial token provided. Skipping Firebase Auth sign-in to prevent config errors.");
         }
 
     } catch (error) {
